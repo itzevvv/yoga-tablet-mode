@@ -3,7 +3,6 @@
 SCREEN="eDP-1"
 STATE_FILE="/tmp/yoga_tablet_mode"
 ORIENTATION_FILE="/tmp/yoga_orientation"
-STARTUP_FILE="/tmp/yoga_startup_reload"
 
 LAST_ORIENTATION="normal"
 
@@ -56,19 +55,18 @@ function rotate {
 }
 
 function check_startup {
-    echo "checking startup"
-    if [[ ! -f "$STARTUP_FILE" ]]; then
-        echo "startup file not found, restarting amd_pmf and amd_sfh..."
+    echo "checking for hid_sensor_accel_3d..."
+    if ! lsmod | grep -q "hid_sensor_accel_3d"; then 
+        echo "hid_sensor_accel_3d not found, restarting amd_pmf and amd_sfh..."
         startup
-        touch "$STARTUP_FILE"
     else
-        echo "already started up!"
+        echo "found hid_sensor_accel_3d"
     fi
 }
 
 function startup {
-    echo "wait..."
     sudo modprobe -r amd_pmf amd_sfh
+    echo "wait..."
     sleep 1
     sudo modprobe amd_sfh amd_pmf
     sleep 4
